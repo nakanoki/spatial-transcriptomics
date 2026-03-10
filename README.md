@@ -4,17 +4,24 @@ Spatial transcriptomics 解析用プロジェクト。
 
 ## ディレクトリ構成
 
-- `notebooks/`: 解析ノートブック
-- `src/`: 解析用コード
-- `data/raw/`: 生データ（大きいので Git 管理しない想定）
-- `data/processed/`: 前処理後データ
-- `results/`: 解析結果
-- `scripts/`: 実行スクリプト
-- `config/`: 設定ファイル
+```
+config/           # 設定ファイル（パスやパラメータなど）
+data/             # データ関連フォルダ
+├─ processed/     # 前処理後のデータ
+└─ raw/           # 生データ
+    └─ breast_cancer/
+        ├─ Visium_Human_Breast_Cancer_filtered_feature_bc_matrix.h5   # Space Ranger 出力 H5 ファイル
+        └─ spatial/                                                   # 空間座標・画像情報など
+notebooks/        # 解析用のJupyterノートブック
+results/          # 解析結果（グラフ、表、レポートなど）
+scripts/          # 実行用スクリプト（バッチ処理や再現用スクリプト）
+src/              # 解析用のPythonやRなどのコード
+```
 
 ## データソース
 
-（未選定。決まり次第ここに追記）
+https://www.10xgenomics.com/jp/datasets/human-breast-cancer-visium-fresh-frozen-whole-transcriptome-1-standard
+
 
 - **保管先**: S3（予定）
   - **方針**: 生データ・中間生成物・結果などの大きいファイルは S3 に置き、リポジトリには含めない
