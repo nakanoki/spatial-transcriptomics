@@ -14,7 +14,8 @@ Spatial transcriptomics 解析用プロジェクト。
 
 ## データソース
 
-（未選定。決まり次第ここに追記）
+https://www.10xgenomics.com/jp/datasets/human-breast-cancer-visium-fresh-frozen-whole-transcriptome-1-standard
+
 
 - **保管先**: S3（予定）
   - **方針**: 生データ・中間生成物・結果などの大きいファイルは S3 に置き、リポジトリには含めない
