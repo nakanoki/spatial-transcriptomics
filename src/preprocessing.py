@@ -10,14 +10,6 @@ from typing import Literal
 
 import scanpy as sc
 
-def read_visium_sample(sample_path: Path) -> sc.AnnData:
-    """
-    Space Ranger 出力から Visium データを AnnData として読み込む。
-    """
-    adata = sc.read_visium(sample_path)
-    adata.var_names_make_unique()
-    return adata
-
 
 def load_processed_h5ad(path: Path) -> sc.AnnData:
     """処理済み .h5ad を読み込む"""
