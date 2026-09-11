@@ -6,11 +6,12 @@
 
 uv を使う。`uv run <cmd>` / `uv add <pkg>`。システム Python に install しない。
 
-**宣言漏れがある**（今動いているのは transitive 依存のおかげ）:
+`pyyaml` / `leidenalg` は `pyproject.toml` の `dependencies` に宣言済み。
 
-- `pyyaml` … `config.load_config()` が使うが `pyproject.toml` に無い
-- `leidenalg` … `config.yaml` の `clustering.method: leiden` に必要。lock に無いので現状クラスタリングは失敗する
-- `squidpy` … `src/interaction.py` が使う。`_require_squidpy()` で保護されているため未導入でも落ちない
+**宣言漏れが残っているもの**:
+
+- `squidpy` … `src/interaction.py` が使う。依存が大きい（`scikit-image` 等を引き込む）ため未導入のまま見送っている。
+  `_require_squidpy()` で保護されているため、未導入でも他の処理は落ちない。
 
 ## データ
 
