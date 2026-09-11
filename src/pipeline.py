@@ -21,6 +21,7 @@ from .clustering import (
     run_moran_i,
 )
 from .preprocessing import PreprocessParams, preprocess_adata, read_visium_sample
+from .visualization import plot_spatial
 
 
 @dataclass(frozen=True)
@@ -142,9 +143,12 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
 
         # Spatial（Visium の場合）
         if "spatial" in adata.obsm:
-            sq.pl.spatial_scatter(adata, color=[cluster_key], alpha_img=0.8)
-            plt.savefig(out_dir / "spatial_clusters.png", dpi=dpi, bbox_inches="tight")
-            plt.close("all")
+            plot_spatial(
+                adata,
+                color=[cluster_key],
+                save=out_dir / "spatial_clusters.png",
+                dpi=dpi,
+            )
 
     return PipelineOutputs(adata=adata, output_dir=out_dir)
 

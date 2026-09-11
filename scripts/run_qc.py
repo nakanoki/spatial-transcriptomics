@@ -33,7 +33,7 @@ from src.preprocessing import (  # noqa: E402
     filter_cells_and_genes,
     read_visium_sample,
 )
-from src.visualization import plot_qc_violin  # noqa: E402
+from src.visualization import plot_qc_violin, plot_spatial  # noqa: E402
 
 QC_KEYS = ["n_genes_by_counts", "total_counts", "pct_counts_mt"]
 
@@ -60,9 +60,11 @@ def main() -> None:
     plot_qc_violin(adata, keys=QC_KEYS, save=out_dir / "qc_violin_before.png")
 
     # QC 指標の空間分布（組織の端や剥離の影響を確認する）
-    sq.pl.spatial_scatter(adata, color=["total_counts", "n_genes_by_counts"])
-    plt.savefig(out_dir / "qc_spatial.png", dpi=150, bbox_inches="tight")
-    plt.close("all")
+    plot_spatial(
+        adata,
+        color=["total_counts", "n_genes_by_counts"],
+        save=out_dir / "qc_spatial.png",
+    )
 
     print(
         f"\n閾値: min_genes(per spot)={qc['min_genes_per_spot']}, "
