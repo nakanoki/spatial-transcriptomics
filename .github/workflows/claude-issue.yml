@@ -1,0 +1,33 @@
+# Issue に `claude` ラベルを付けると起動し、ブランチを切って PR を作る。
+# 寝ている間に作業させたいのはこちら。
+name: Claude (Issue)
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  work:
+    # `claude` ラベルが付いたときだけ動く（他のラベルでは何もしない）
+    if: github.event.label.name == 'claude'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30        # 暴走時の保険。無料枠を守る
+    permissions:
+      contents: write          # ブランチを作る／コミットする
+      pull-requests: write     # PR を出す
+      issues: write            # Issue に進捗コメントする
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          track_progress: true   # Issue に進捗コメントを残す（朝これを読む）
+          prompt: |
+            この Issue に対応してください。
+
+            - リポジトリの CLAUDE.md と README を先に読み、既存の流儀に合わせること
+            - data/ は .gitignore されており CI 上には存在しない。
+              実データを必要とする作業は行わず、その旨を Issue にコメントして終了すること
+            - 作業は新しいブランチで行い、完了したら Draft PR を作成すること
+            - 判断に迷う点があれば、勝手に決めず PR の説明に「確認したい点」として書くこと
