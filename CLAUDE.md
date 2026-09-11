@@ -6,12 +6,10 @@
 
 uv を使う。`uv run <cmd>` / `uv add <pkg>`。システム Python に install しない。
 
-`pyyaml` / `leidenalg` は `pyproject.toml` の `dependencies` に宣言済み。
+`pyyaml` / `leidenalg` / `squidpy` は `pyproject.toml` の `dependencies` に宣言済み。
 
-**宣言漏れが残っているもの**:
-
-- `squidpy` … `src/interaction.py` が使う。依存が大きい（`scikit-image` 等を引き込む）ため未導入のまま見送っている。
-  `_require_squidpy()` で保護されているため、未導入でも他の処理は落ちない。
+空間データの読み込み・可視化は **squidpy を使う**（`sq.read.visium` / `sq.pl.spatial_scatter`）。
+scanpy の `sc.read_visium` / `sc.pl.spatial` は squidpy へ移管され将来削除されるため、新規に使わない。
 
 ## データ
 

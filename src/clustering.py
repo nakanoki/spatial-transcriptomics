@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import scanpy as sc
+import squidpy as sq
 
 
 def build_spatial_neighbors(
@@ -15,11 +16,6 @@ def build_spatial_neighbors(
     """
     Squidpy で空間隣接グラフを構築し adata に格納する。
     """
-    try:
-        import squidpy as sq  # type: ignore
-    except Exception as e:  # pragma: no cover
-        raise ImportError("squidpy が必要です（pip/conda で squidpy をインストールしてください）") from e
-
     sq.gr.spatial_neighbors(adata, coord_type=coord_type, delaunay=delaunay)
 
 
@@ -32,11 +28,6 @@ def run_moran_i(
     """
     モランI 空間自己相関を計算。結果は adata.uns["moranI"] に格納。
     """
-    try:
-        import squidpy as sq  # type: ignore
-    except Exception as e:  # pragma: no cover
-        raise ImportError("squidpy が必要です（pip/conda で squidpy をインストールしてください）") from e
-
     if genes is None and use_highly_variable and "highly_variable" in adata.var.columns:
         genes = adata.var_names[adata.var["highly_variable"]].tolist()
         if n_genes is not None:

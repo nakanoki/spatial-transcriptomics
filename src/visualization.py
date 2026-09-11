@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Iterable
 
 import scanpy as sc
+import squidpy as sq
 
 
 def plot_qc_violin(
@@ -60,22 +61,29 @@ def plot_spatial(
     alpha_img: float = 0.8,
     size: float = 1.2,
     save: str | Path | None = None,
+    dpi: int = 150,
 ) -> None:
     """
-    Visium 形式の空間プロット（`sc.read_visium` を想定）。
+    Visium 形式の空間プロット（`sq.read.visium` で読んだ AnnData を想定）。
+
+    `save` にパスを渡すと、その場所に画像として保存する。
     """
     if "spatial" not in adata.obsm:
         raise ValueError("adata.obsm['spatial'] がありません（Visium 形式の AnnData を想定）")
 
-    sc.pl.spatial(
+    sq.pl.spatial_scatter(
         adata,
         color=color,
         library_id=library_id,
-        img_key=img_key,
+        img_res_key=img_key,
         alpha_img=alpha_img,
         size=size,
-        save=None,
     )
     if save is not None:
-        raise NotImplementedError("明示的な保存は呼び出し側で実装してください（scanpy設定に依存）")
+        import matplotlib.pyplot as plt
+
+        save = Path(save)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save, dpi=dpi, bbox_inches="tight")
+        plt.close("all")
 

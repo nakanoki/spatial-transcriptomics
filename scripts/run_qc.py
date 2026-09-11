@@ -21,6 +21,7 @@ import matplotlib
 matplotlib.use("Agg")  # 画面を持たない環境で実行するため
 import matplotlib.pyplot as plt
 import scanpy as sc
+import squidpy as sq
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
@@ -59,7 +60,7 @@ def main() -> None:
     plot_qc_violin(adata, keys=QC_KEYS, save=out_dir / "qc_violin_before.png")
 
     # QC 指標の空間分布（組織の端や剥離の影響を確認する）
-    sc.pl.spatial(adata, color=["total_counts", "n_genes_by_counts"], show=False)
+    sq.pl.spatial_scatter(adata, color=["total_counts", "n_genes_by_counts"])
     plt.savefig(out_dir / "qc_spatial.png", dpi=150, bbox_inches="tight")
     plt.close("all")
 

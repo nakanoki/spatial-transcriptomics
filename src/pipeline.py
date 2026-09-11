@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import scanpy as sc
+import squidpy as sq
 
 from config import get_paths, load_config
 from .clustering import (
@@ -116,13 +117,9 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
         ),
     )
 
-    # 空間解析（squidpy は任意）
-    try:
-        build_spatial_neighbors(adata, coord_type="generic", delaunay=True)
-        run_moran_i(adata, n_genes=100)
-    except Exception:
-        # squidpy 未導入などは許容（パイプライン全体は止めない）
-        pass
+    # 空間解析（squidpy は必須依存）
+    build_spatial_neighbors(adata, coord_type="generic", delaunay=True)
+    run_moran_i(adata, n_genes=100)
 
     # 出力
     export_cfg = cfg.get("export") or {}
@@ -145,12 +142,9 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
 
         # Spatial（Visium の場合）
         if "spatial" in adata.obsm:
-            try:
-                sc.pl.spatial(adata, color=[cluster_key], alpha_img=0.8, show=False)
-                plt.savefig(out_dir / "spatial_clusters.png", dpi=dpi, bbox_inches="tight")
-                plt.close()
-            except Exception:
-                pass
+            sq.pl.spatial_scatter(adata, color=[cluster_key], alpha_img=0.8)
+            plt.savefig(out_dir / "spatial_clusters.png", dpi=dpi, bbox_inches="tight")
+            plt.close("all")
 
     return PipelineOutputs(adata=adata, output_dir=out_dir)
 
