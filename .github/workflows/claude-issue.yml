@@ -24,6 +24,7 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true   # Issue に進捗コメントを残す（朝これを読む）
+          claude_args: --allowed-tools "Bash(gh pr create:*)"
           prompt: |
             この Issue に対応してください。
 
