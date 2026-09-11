@@ -15,14 +15,28 @@ def plot_qc_violin(
     keys: Iterable[str] = ("total_counts", "n_genes_by_counts", "pct_counts_mt"),
     groupby: str | None = None,
     save: str | Path | None = None,
-) -> None:
+    show: bool = False,
+    dpi: int = 150,
+):
     """
     QC 指標の violin plot。
+
+    `save` にパスを渡すと、その場所に画像として保存する。
+    notebook から対話的に見たい場合は `show=True`。
     """
-    sc.pl.violin(adata, keys=list(keys), groupby=groupby, multi_panel=True, save=None)
+    ret = sc.pl.violin(
+        adata, keys=list(keys), groupby=groupby, multi_panel=True, show=show
+    )
     if save is not None:
-        # scanpy の save は figures 設定に依存するため、明示保存は呼び出し側で対応する想定
-        raise NotImplementedError("明示的な保存は呼び出し側で実装してください（scanpy設定に依存）")
+        import matplotlib.pyplot as plt
+
+        save = Path(save)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        # multi_panel=True は seaborn の FacetGrid(.fig)、それ以外は Axes(.figure) を返す
+        fig = getattr(ret, "fig", None) or getattr(ret, "figure", None) or plt.gcf()
+        fig.savefig(save, dpi=dpi, bbox_inches="tight")
+        plt.close(fig)
+    return ret
 
 
 def plot_umap(

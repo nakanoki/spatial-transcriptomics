@@ -11,6 +11,24 @@ from typing import Literal
 import scanpy as sc
 
 
+def read_visium_sample(sample_dir: Path) -> sc.AnnData:
+    """
+    Space Ranger 出力ディレクトリから Visium サンプルを読み込む。
+
+    `*filtered_feature_bc_matrix.h5` と `spatial/` を含むディレクトリを想定する。
+    10x の配布ファイルはサンプル名が接頭辞に付くため、glob で探索する。
+    """
+    sample_dir = Path(sample_dir)
+    h5_files = sorted(sample_dir.glob("*filtered_feature_bc_matrix.h5"))
+    if not h5_files:
+        raise FileNotFoundError(
+            f"filtered_feature_bc_matrix.h5 が見つかりません: {sample_dir}"
+        )
+    adata = sc.read_visium(path=sample_dir, count_file=h5_files[0].name)
+    adata.var_names_make_unique()
+    return adata
+
+
 def load_processed_h5ad(path: Path) -> sc.AnnData:
     """処理済み .h5ad を読み込む"""
     return sc.read_h5ad(path)
