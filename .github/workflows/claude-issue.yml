@@ -16,13 +16,19 @@ jobs:
       contents: write          # ブランチを作る／コミットする
       pull-requests: write     # PR を出す
       issues: write            # Issue に進捗コメントする
+      id-token: write          # OIDC トークンの取得に必要
     steps:
       - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v10   # ランナーに uv を入れる（無いと uv add / uv lock が実行できない）
+        with:
+          enable-cache: true
 
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           track_progress: true   # Issue に進捗コメントを残す（朝これを読む）
+          claude_args: --allowed-tools "Bash(gh pr create:*),Bash(uv:*)"
           prompt: |
             この Issue に対応してください。
 
