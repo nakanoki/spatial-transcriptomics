@@ -16,6 +16,7 @@ jobs:
       contents: write          # ブランチを作る／コミットする
       pull-requests: write     # PR を出す
       issues: write            # Issue に進捗コメントする
+      id-token: write          # OIDC トークンの取得に必要
     steps:
       - uses: actions/checkout@v4
 
