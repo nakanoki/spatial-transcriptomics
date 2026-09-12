@@ -11,6 +11,22 @@ import scanpy as sc
 import squidpy as sq
 
 
+def _set_title(title: str | None) -> None:
+    """
+    図全体のタイトルを設定する。`bbox_inches="tight"` での保存を前提に余白を取る。
+
+    タイトルは英語で書くこと。matplotlib の既定フォントは日本語を持たず、
+    豆腐（□）になる。日本語を出すには環境ごとにフォント設定が必要で、
+    CI や他マシンで同じ図が再現できなくなる。
+    サブプロット名と重なるため1行に収めること。
+    """
+    if not title:
+        return
+    import matplotlib.pyplot as plt
+
+    plt.gcf().suptitle(title, fontsize=13, y=1.04)
+
+
 def plot_qc_violin(
     adata: sc.AnnData,
     keys: Iterable[str] = ("total_counts", "n_genes_by_counts", "pct_counts_mt"),
@@ -18,16 +34,31 @@ def plot_qc_violin(
     save: str | Path | None = None,
     show: bool = False,
     dpi: int = 150,
+    title: str | None = None,
+    ylims: dict[str, tuple[float, float]] | None = None,
 ):
     """
     QC 指標の violin plot。
 
     `save` にパスを渡すと、その場所に画像として保存する。
     notebook から対話的に見たい場合は `show=True`。
+
+    `ylims` に `{指標名: (下限, 上限)}` を渡すと、その範囲に軸を固定する。
+    フィルタ前後の図を並べて比較するときは、前者の範囲を両方に与えること。
+    自動スケールのままでは軸が変わり、分布の変化を見誤る。
     """
     ret = sc.pl.violin(
         adata, keys=list(keys), groupby=groupby, multi_panel=True, show=show
     )
+    if ylims:
+        import matplotlib.pyplot as plt
+
+        # multi_panel=True の軸は keys の順に並ぶ
+        for ax, key in zip(plt.gcf().axes, list(keys)):
+            if key in ylims:
+                ax.set_ylim(*ylims[key])
+
+    _set_title(title)
     if save is not None:
         import matplotlib.pyplot as plt
 
@@ -64,6 +95,7 @@ def plot_spatial(
     dpi: int = 150,
     crop: bool = True,
     crop_margin: float = 0.02,
+    title: str | None = None,
 ) -> None:
     """
     Visium 形式の空間プロット（`sq.read.visium` で読んだ AnnData を想定）。
@@ -91,6 +123,8 @@ def plot_spatial(
     sq.pl.spatial_scatter(adata, **kwargs)
     if crop:
         _crop_to_spots(adata, library_id=library_id, img_key=img_key, margin=crop_margin)
+
+    _set_title(title)
 
     if save is not None:
         import matplotlib.pyplot as plt

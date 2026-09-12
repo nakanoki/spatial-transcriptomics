@@ -38,6 +38,18 @@ from src.visualization import plot_qc_violin, plot_spatial  # noqa: E402
 QC_KEYS = ["n_genes_by_counts", "total_counts", "pct_counts_mt"]
 
 
+def qc_ylims(
+    adata: sc.AnnData, keys: list[str], pad: float = 0.05
+) -> dict[str, tuple[float, float]]:
+    """フィルタ前の分布から軸範囲を決める。前後の図で同じ軸を使うため。"""
+    lims = {}
+    for k in keys:
+        lo, hi = float(adata.obs[k].min()), float(adata.obs[k].max())
+        m = (hi - lo) * pad
+        lims[k] = (lo - m, hi + m)
+    return lims
+
+
 def describe(adata: sc.AnnData, label: str) -> None:
     """QC 指標の分布を数値で出す（閾値を決める材料）。"""
     print(f"\n--- {label}: {adata.n_obs} spots x {adata.n_vars} genes ---")
@@ -57,13 +69,25 @@ def main() -> None:
     adata = read_visium_sample(sample_path)
     add_qc_metrics(adata)
     describe(adata, "フィルタ前")
-    plot_qc_violin(adata, keys=QC_KEYS, save=out_dir / "qc_violin_before.png")
+    # 軸範囲はフィルタ前の分布で固定し、前後の図を直接比較できるようにする
+    ylims = qc_ylims(adata, QC_KEYS)
+    plot_qc_violin(
+        adata,
+        keys=QC_KEYS,
+        save=out_dir / "qc_violin_before.png",
+        ylims=ylims,
+        title=(
+            "QC metric distributions (before filtering)  |  "
+            f"{adata.n_obs:,} spots x {adata.n_vars:,} genes"
+        ),
+    )
 
     # QC 指標の空間分布（組織の端や剥離の影響を確認する）
     plot_spatial(
         adata,
         color=["total_counts", "n_genes_by_counts"],
         save=out_dir / "qc_spatial.png",
+        title="Spatial distribution of QC metrics (total counts and detected genes)",
     )
 
     print(
@@ -78,7 +102,18 @@ def main() -> None:
         pct_counts_mt_max=qc["pct_counts_mt_max"],
     )
     describe(adata, "フィルタ後")
-    plot_qc_violin(adata, keys=QC_KEYS, save=out_dir / "qc_violin_after.png")
+    plot_qc_violin(
+        adata,
+        keys=QC_KEYS,
+        save=out_dir / "qc_violin_after.png",
+        ylims=ylims,
+        title=(
+            "QC metric distributions (after filtering)  |  "
+            f"{adata.n_obs:,} spots x {adata.n_vars:,} genes  |  "
+            f"min_genes={qc['min_genes_per_spot']}, min_cells={qc['min_cells']}, "
+            f"pct_counts_mt<{qc['pct_counts_mt_max']}"
+        ),
+    )
 
     processed = paths["data_processed"]
     processed.mkdir(parents=True, exist_ok=True)
