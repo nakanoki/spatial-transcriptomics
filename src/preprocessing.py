@@ -9,12 +9,26 @@ from pathlib import Path
 from typing import Literal
 
 import scanpy as sc
+import squidpy as sq
 
-def read_visium_sample(sample_path: Path) -> sc.AnnData:
+
+def read_visium_sample(sample_dir: Path) -> sc.AnnData:
     """
-    Space Ranger 出力から Visium データを AnnData として読み込む。
+    Space Ranger 出力ディレクトリから Visium サンプルを読み込む。
+
+    `*filtered_feature_bc_matrix.h5` と `spatial/` を含むディレクトリを想定する。
+    10x の配布ファイルはサンプル名が接頭辞に付くため、glob で探索する。
+
+    scanpy の `sc.read_visium` は squidpy へ移管され将来削除されるため、
+    `sq.read.visium` を使う。
     """
-    adata = sc.read_visium(sample_path)
+    sample_dir = Path(sample_dir)
+    h5_files = sorted(sample_dir.glob("*filtered_feature_bc_matrix.h5"))
+    if not h5_files:
+        raise FileNotFoundError(
+            f"filtered_feature_bc_matrix.h5 が見つかりません: {sample_dir}"
+        )
+    adata = sq.read.visium(sample_dir, counts_file=h5_files[0].name)
     adata.var_names_make_unique()
     return adata
 

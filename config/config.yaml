@@ -3,14 +3,6 @@ project:
   description: ""
   random_seed: 0
 
-paths:
-  project_root: ""
-  data_raw_dir: "data/raw"
-  data_processed_dir: "data/processed"
-  results_dir: "results"
-  notebooks_dir: "notebooks"
-  scripts_dir: "scripts"
-
 # 入力データ（例: 10x Genomics Visium）
 inputs:
   # 例: Space Ranger の出力ディレクトリ（filtered_feature_bc_matrix.h5 等を含む）
@@ -18,45 +10,45 @@ inputs:
   # 例: H&E 画像
   tissue_image_path: ""
   # 例: サンプルID/ライブラリID
-  sample_id: ""
-  # 例: 複数サンプル運用する場合
-  samples:
-    # - sample_id: "sampleA"
-    #   spaceranger_out_dir: "data/raw/sampleA/spaceranger_out"
-    #   tissue_image_path: "data/raw/sampleA/image.tif"
-    []
+  sample_id: "breast_cancer"
 
-# 解析設定（共通）
-analysis:
-  organism: "human"        # human / mouse
-  genome_build: "GRCh38"   # GRCh38 / GRCm39 等
-  gene_id_type: "symbol"   # symbol / ensembl
 
+# QC 設定
 qc:
   # フィルタ候補（必要なものだけ使う）
-  min_counts_per_spot: 0
-  min_genes_per_spot: 0
+  min_counts_per_spot: 3000
+  min_genes_per_spot: 500
   max_mito_percent: null
   max_ribo_percent: null
   max_hb_percent: null
+  min_genes: 0
+  min_cells: 5
+  pct_counts_mt_max: 12
+  n_top_genes: 2000
+  target_sum: 1e4
 
+# 正規化設定
 normalization:
   method: "log1p"          # log1p / sctransform / none
   target_sum: 10000
 
+# 特徴量選択設定
 feature_selection:
   method: "hvg"            # hvg / none
   n_top_genes: 2000
 
+# 次元削減設定
 dimension_reduction:
   pca_n_components: 50
   neighbors_k: 15
   umap_min_dist: 0.5
 
+# クラスタリング設定
 clustering:
   method: "leiden"         # leiden / louvain
   resolution: 1.0
 
+# 空間解析設定
 spatial:
   # 空間座標のスケールや単位（ライブラリ由来なら自動のことが多い）
   coordinate_unit: "pixel"
@@ -75,25 +67,3 @@ export:
   save_plots: true
   plot_format: "png"       # png / pdf / svg
   dpi: 150
-
-s3:
-  enabled: false
-  bucket: ""
-  prefix: ""
-  # 例: s3://bucket/prefix/data/raw を data/raw に同期
-  sync_to_local: false
-  local_sync_dirs:
-    - "data/raw"
-    - "data/processed"
-    - "results"
-
-compute:
-  platform: "ec2"          # ec2 / local / other
-  instance_type: ""
-  region: ""
-  # Docker を使う想定（README と整合）
-  use_docker: true
-  docker_image: "spatial-rpy"
-
-logging:
-  level: "INFO"            # DEBUG / INFO / WARNING / ERROR

@@ -78,10 +78,10 @@ uv run jupyter lab
 
 パラメータ（QC 閾値・クラスタリング解像度など）は `config/config.yaml` と `src/` 各モジュールの dataclass（`PreprocessParams` / `DimReduceParams` / `ClusteringParams` 等）で管理する。コードへの直書きはしない。
 
-#### 既知の制約
+#### 依存関係についての方針
 
-- `pyproject.toml` に宣言が漏れている依存関係がある（`pyyaml`, `leidenalg`）。`config.yaml` の `clustering.method: leiden` は現状 `leidenalg` が lock ファイルに含まれていないため失敗する。
-- `squidpy`（空間近傍・cell-cell interaction 解析に使用）は任意導入で、未導入でもパイプライン本体は止まらない（`_require_squidpy()` で保護）。
+- `pyyaml` / `leidenalg` / `squidpy` はいずれも `pyproject.toml` に宣言済みで、`uv.lock` に固定されている。
+- 空間データの読み込みと可視化には **squidpy** を使う（`sq.read.visium` / `sq.pl.spatial_scatter`）。scanpy の `sc.read_visium` / `sc.pl.spatial` は squidpy へ移管され将来削除されるため、新規コードでは使わない。
 - 詳細は [CLAUDE.md](./CLAUDE.md) を参照すること。
 
 ### `src/` モジュール一覧
@@ -212,10 +212,10 @@ uv run jupyter lab
 
 Parameters (QC thresholds, clustering resolution, etc.) are managed via `config/config.yaml` and dataclasses in each `src/` module (`PreprocessParams` / `DimReduceParams` / `ClusteringParams`, etc.), not hardcoded.
 
-#### Known Limitations
+#### Dependency Policy
 
-- `pyproject.toml` is missing some dependency declarations (`pyyaml`, `leidenalg`). Since `leidenalg` is absent from the lock file, `clustering.method: leiden` in `config.yaml` currently fails.
-- `squidpy` (used for spatial neighborhood / cell-cell interaction analysis) is an optional dependency; the core pipeline still runs without it (guarded by `_require_squidpy()`).
+- `pyyaml`, `leidenalg`, and `squidpy` are all declared in `pyproject.toml` and pinned in `uv.lock`.
+- Spatial data loading and visualization go through **squidpy** (`sq.read.visium` / `sq.pl.spatial_scatter`). scanpy's `sc.read_visium` / `sc.pl.spatial` have been migrated to squidpy and are scheduled for removal, so they are not used in new code.
 - See [CLAUDE.md](./CLAUDE.md) for details.
 
 ### `src/` Module Overview

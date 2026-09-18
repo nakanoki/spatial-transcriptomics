@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import scanpy as sc
+import squidpy as sq
 
 from config import get_paths, load_config
 from .clustering import (
@@ -20,6 +21,7 @@ from .clustering import (
     run_moran_i,
 )
 from .preprocessing import PreprocessParams, preprocess_adata, read_visium_sample
+from .visualization import plot_spatial
 
 
 @dataclass(frozen=True)
@@ -76,7 +78,13 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
         mt_prefix="MT-",
         min_genes=int(qc_cfg.get("min_genes_per_spot") or 0),
         min_cells=int(qc_cfg.get("min_cells") or 3),
-        pct_counts_mt_max=float(qc_cfg.get("max_mito_percent") or 100.0),
+        # config には pct_counts_mt_max と max_mito_percent の両方がある。
+        # 明示指定されている方を優先し、どちらも未設定ならフィルタしない。
+        pct_counts_mt_max=float(
+            qc_cfg["pct_counts_mt_max"]
+            if qc_cfg.get("pct_counts_mt_max") is not None
+            else (qc_cfg.get("max_mito_percent") or 100.0)
+        ),
         target_sum=float(norm_cfg.get("target_sum") or 1e4),
         n_top_genes=int(feat_cfg.get("n_top_genes") or 2000),
         normalization_method=("none" if (norm_cfg.get("method") == "none") else "log1p"),
@@ -110,13 +118,9 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
         ),
     )
 
-    # 空間解析（squidpy は任意）
-    try:
-        build_spatial_neighbors(adata, coord_type="generic", delaunay=True)
-        run_moran_i(adata, n_genes=100)
-    except Exception:
-        # squidpy 未導入などは許容（パイプライン全体は止めない）
-        pass
+    # 空間解析（squidpy は必須依存）
+    build_spatial_neighbors(adata, coord_type="generic", delaunay=True)
+    run_moran_i(adata, n_genes=100)
 
     # 出力
     export_cfg = cfg.get("export") or {}
@@ -139,12 +143,12 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
 
         # Spatial（Visium の場合）
         if "spatial" in adata.obsm:
-            try:
-                sc.pl.spatial(adata, color=[cluster_key], alpha_img=0.8, show=False)
-                plt.savefig(out_dir / "spatial_clusters.png", dpi=dpi, bbox_inches="tight")
-                plt.close()
-            except Exception:
-                pass
+            plot_spatial(
+                adata,
+                color=[cluster_key],
+                save=out_dir / "spatial_clusters.png",
+                dpi=dpi,
+            )
 
     return PipelineOutputs(adata=adata, output_dir=out_dir)
 
