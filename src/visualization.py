@@ -162,15 +162,26 @@ def plot_normalization_effect(
 
 def plot_umap(
     adata: sc.AnnData,
-    color: str | list[str] = "leiden",
+    color: str | list[str] = "clusters",
     save: str | Path | None = None,
+    show: bool = False,
+    dpi: int = 150,
+    title: str | None = None,
 ) -> None:
     """
-    UMAP プロット（事前に sc.tl.umap が必要）。
+    UMAP プロット（事前に `sc.tl.umap` が必要）。
+
+    `save` にパスを渡すと、その場所に画像として保存する。
     """
-    sc.pl.umap(adata, color=color, save=None)
+    import matplotlib.pyplot as plt
+
+    sc.pl.umap(adata, color=color, show=show)
+    _set_title(title)
     if save is not None:
-        raise NotImplementedError("明示的な保存は呼び出し側で実装してください（scanpy設定に依存）")
+        save = Path(save)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save, dpi=dpi, bbox_inches="tight")
+        plt.close("all")
 
 
 def plot_spatial(

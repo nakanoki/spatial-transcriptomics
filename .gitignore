@@ -5,3 +5,6 @@ data/
 __pycache__/
 # 解析結果の .h5ad は大きい（数百MB）。図だけをリポジトリに置く
 results/**/*.h5ad
+
+# run_pipeline() の出力先。段階実行する scripts/ の結果を results/<段階>/ に置くため追跡しない
+results/run/
