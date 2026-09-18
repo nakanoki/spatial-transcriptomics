@@ -7,7 +7,7 @@ project:
 inputs:
   # 例: Space Ranger の出力ディレクトリ（filtered_feature_bc_matrix.h5 等を含む）
   spaceranger_out_dir: ""
-  # 例: H&E 画像
+  # 例: H&E 画像。現状は spatial/ 配下の画像を自動で使うため未参照
   tissue_image_path: ""
   # 例: サンプルID/ライブラリID
   sample_id: "breast_cancer"
@@ -15,21 +15,13 @@ inputs:
 
 # QC 設定
 qc:
-  # フィルタ候補（必要なものだけ使う）
-  min_counts_per_spot: 3000
-  min_genes_per_spot: 500
-  max_mito_percent: null
-  max_ribo_percent: null
-  max_hb_percent: null
-  min_genes: 0
-  min_cells: 5
-  pct_counts_mt_max: 12
-  n_top_genes: 2000
-  target_sum: 1e4
+  min_genes_per_spot: 500   # スポットあたりの検出遺伝子数の下限
+  min_cells: 5              # その遺伝子が検出されるスポット数の下限
+  pct_counts_mt_max: 12     # ミトコンドリア遺伝子由来 UMI の割合の上限（%）
 
 # 正規化設定
 normalization:
-  method: "log1p"          # log1p / sctransform / none
+  method: "log1p"          # log1p / none
   target_sum: 10000
 
 # 特徴量選択設定
@@ -48,14 +40,6 @@ clustering:
   method: "leiden"         # leiden / louvain
   resolution: 1.0
 
-# 空間解析設定
-spatial:
-  # 空間座標のスケールや単位（ライブラリ由来なら自動のことが多い）
-  coordinate_unit: "pixel"
-  spot_diameter_fullres: null
-  # 画像との重ね合わせ表示
-  image_alpha: 0.8
-
 markers:
   method: "wilcoxon"       # wilcoxon / ttest / logistic_regression 等
   n_genes: 50
@@ -65,5 +49,4 @@ export:
   run_name: "run"
   save_anndata: true
   save_plots: true
-  plot_format: "png"       # png / pdf / svg
   dpi: 150

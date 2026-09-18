@@ -3,3 +3,5 @@ data/
 # Python バイトコード
 *.pyc
 __pycache__/
+# 解析結果の .h5ad は大きい（数百MB）。図だけをリポジトリに置く
+results/**/*.h5ad

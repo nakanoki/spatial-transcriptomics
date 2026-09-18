@@ -78,13 +78,7 @@ def run_pipeline(project_root: Path, config_path: Path | None = None) -> Pipelin
         mt_prefix="MT-",
         min_genes=int(qc_cfg.get("min_genes_per_spot") or 0),
         min_cells=int(qc_cfg.get("min_cells") or 3),
-        # config には pct_counts_mt_max と max_mito_percent の両方がある。
-        # 明示指定されている方を優先し、どちらも未設定ならフィルタしない。
-        pct_counts_mt_max=float(
-            qc_cfg["pct_counts_mt_max"]
-            if qc_cfg.get("pct_counts_mt_max") is not None
-            else (qc_cfg.get("max_mito_percent") or 100.0)
-        ),
+        pct_counts_mt_max=float(qc_cfg.get("pct_counts_mt_max") or 100.0),
         target_sum=float(norm_cfg.get("target_sum") or 1e4),
         n_top_genes=int(feat_cfg.get("n_top_genes") or 2000),
         normalization_method=("none" if (norm_cfg.get("method") == "none") else "log1p"),
