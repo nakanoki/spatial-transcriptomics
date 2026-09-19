@@ -4,24 +4,34 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-venv python3-dev \
+    python3 python3-venv python3-dev \
     build-essential git curl ca-certificates \
     libssl-dev libcurl4-openssl-dev libxml2-dev \
   && rm -rf /var/lib/apt/lists/*
 
-# Python (Jupyter + basic scientific stack)
-RUN python3 -m pip install --no-cache-dir -U pip \
-  && python3 -m pip install --no-cache-dir \
-    jupyterlab \
-    ipykernel \
-    scanpy \
-    squidpy \
-    pyyaml \
-    numpy \
-    pandas \
-    matplotlib
+# -----------------------
+# Python 仮想環境
+# -----------------------
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# R (IRkernel + common packages)
+RUN pip install --no-cache-dir --upgrade pip \
+  && pip install --no-cache-dir \
+      jupyterlab \
+      ipykernel \
+      scanpy \
+      squidpy \
+      pyyaml \
+      numpy \
+      pandas \
+      matplotlib
+
+# ipykernel登録（JupyterでPython選択可能に）
+RUN python -m ipykernel install --name python-env --display-name "Python (venv)" --user
+
+# -----------------------
+# R環境
+# -----------------------
 RUN R -q -e "install.packages(c('IRkernel','tidyverse','data.table'), repos='https://cloud.r-project.org')" \
   && R -q -e "IRkernel::installspec(user = FALSE)"
 
