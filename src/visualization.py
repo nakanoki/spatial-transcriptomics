@@ -71,17 +71,117 @@ def plot_qc_violin(
     return ret
 
 
-def plot_umap(
+def plot_hvg(
     adata: sc.AnnData,
-    color: str | list[str] = "leiden",
     save: str | Path | None = None,
+    show: bool = False,
+    dpi: int = 150,
+    title: str | None = None,
 ) -> None:
     """
-    UMAP プロット（事前に sc.tl.umap が必要）。
+    高変動遺伝子（HVG）の選択結果をプロットする。
+
+    HVG で subset する前の AnnData を渡すこと。`normalize_and_hvg()` の戻り値は
+    subset 済みなので、`adata.raw.to_adata()` を渡す。
     """
-    sc.pl.umap(adata, color=color, save=None)
+    import matplotlib.pyplot as plt
+
+    sc.pl.highly_variable_genes(adata, show=show)
+    _set_title(title)
     if save is not None:
-        raise NotImplementedError("明示的な保存は呼び出し側で実装してください（scanpy設定に依存）")
+        save = Path(save)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save, dpi=dpi, bbox_inches="tight")
+        plt.close("all")
+
+
+def plot_normalization_effect(
+    adata: sc.AnnData,
+    target_sum: float = 1e4,
+    save: str | Path | None = None,
+    show: bool = False,
+    dpi: int = 150,
+    title: str | None = None,
+) -> None:
+    """
+    正規化によってスポット間の深度差が揃うことを示す。
+
+    正規化前のカウントを持つ AnnData を渡す。表示用にコピーを正規化するだけで、
+    渡した AnnData は変更しない。
+
+    正規化後は全スポットが `target_sum` に揃い、値の範囲がゼロになる。
+    ヒストグラムではビンが作れないため、対数軸のストリッププロットで示す。
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    before = np.asarray(adata.X.sum(axis=1)).ravel()
+
+    tmp = adata.copy()
+    sc.pp.normalize_total(tmp, target_sum=target_sum)
+    after = np.asarray(tmp.X.sum(axis=1)).ravel()
+
+    rng = np.random.default_rng(0)
+    fig, ax = plt.subplots(figsize=(7.5, 4.6))
+    for i, (vals, color, label) in enumerate(
+        [(before, "#4c72b0", "before"), (after, "#55a868", "after")]
+    ):
+        ax.scatter(
+            rng.normal(i, 0.07, vals.size), vals,
+            s=3, alpha=0.2, color=color, linewidths=0, label=label,
+        )
+
+    ax.set_yscale("log")
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(
+        ["before\n(raw counts)", f"after\n(target_sum={target_sum:g})"]
+    )
+    ax.set_ylabel("total counts per spot  (log scale)")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.annotate(
+        f"{before.min():,.0f} – {before.max():,.0f}\n({before.max() / before.min():.0f}x spread)",
+        xy=(0, before.max()), xytext=(6, 8), textcoords="offset points",
+        fontsize=9, color="#4c72b0",
+    )
+    ax.annotate(
+        "all spots equal", xy=(1, after.max()), xytext=(6, 8),
+        textcoords="offset points", fontsize=9, color="#55a868",
+    )
+    fig.tight_layout()
+
+    _set_title(title)
+    if save is not None:
+        save = Path(save)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(save, dpi=dpi, bbox_inches="tight")
+        plt.close("all")
+    elif not show:
+        plt.close(fig)
+
+
+def plot_umap(
+    adata: sc.AnnData,
+    color: str | list[str] = "clusters",
+    save: str | Path | None = None,
+    show: bool = False,
+    dpi: int = 150,
+    title: str | None = None,
+) -> None:
+    """
+    UMAP プロット（事前に `sc.tl.umap` が必要）。
+
+    `save` にパスを渡すと、その場所に画像として保存する。
+    """
+    import matplotlib.pyplot as plt
+
+    sc.pl.umap(adata, color=color, show=show)
+    _set_title(title)
+    if save is not None:
+        save = Path(save)
+        save.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(save, dpi=dpi, bbox_inches="tight")
+        plt.close("all")
 
 
 def plot_spatial(
