@@ -94,11 +94,11 @@ uv run jupyter lab
 | `src/visualization.py` | QC violin plot、UMAP、空間プロット（Visium 重ね合わせ表示）の可視化ヘルパー |
 | `src/interaction.py` | Squidpy によるクラスター間の近傍出現頻度（neighborhood enrichment）・共起（co-occurrence）解析と可視化 |
 | `src/pipeline.py` | `config/config.yaml` の設定に基づき、前処理〜次元削減〜クラスタリング〜（任意で）空間解析〜結果出力までを実行する統合パイプライン（`run_pipeline`） |
-| `config/__init__.py` | `config/config.yaml` の読み込みとパス・パラメータ解決のユーティリティ（`load_config` / `get_paths` / `get_qc_config`） |
+| `config/__init__.py` | `config/config.yaml` の読み込みとパス・パラメータ解決のユーティリティ（`load_config` / `get_paths`） |
 
-### Docker（R + Python + Jupyter）
+### Docker（Python + Jupyter）
 
-このリポジトリには、R と Python の両方が使える Jupyter 環境用の `Dockerfile` が含まれる。`uv` によるローカル実行の代替手段である。
+このリポジトリには、解析環境を再現するための `Dockerfile` が含まれる。`uv` によるローカル実行の代替手段である。解析は Python のみで完結するため、イメージは `python:3.11-slim` をベースにしている。
 
 Python の依存関係は、Dockerfile に手書きのパッケージ一覧を持たず、`pyproject.toml` / `uv.lock` から `uv sync --frozen` で入れる。そのため `pyproject.toml` に依存を追加・変更した際、Dockerfile を編集しなくてもイメージに反映される。`jupyterlab` は解析本体には不要なため `pyproject.toml` の `notebook` optional dependency として宣言し、Dockerfile 側で `--extra notebook` を付けて入れている。
 
@@ -106,13 +106,13 @@ Python の依存関係は、Dockerfile に手書きのパッケージ一覧を�
 
 ```bash
 # プロジェクトルートで実行
-docker build -t spatial-rpy .
+docker build -t spatial-transcriptomics .
 ```
 
 #### 起動（ノートブック実行）
 
 ```bash
-docker run --rm -p 8888:8888 -v "$PWD":/work spatial-rpy
+docker run --rm -p 8888:8888 -v "$PWD":/work spatial-transcriptomics
 ```
 
 起動ログに表示される **token 付き URL** をブラウザで開く。
@@ -232,11 +232,11 @@ Parameters (QC thresholds, clustering resolution, etc.) are managed via `config/
 | `src/visualization.py` | Visualization helpers for QC violin plots, UMAP, and spatial plots (Visium overlay) |
 | `src/interaction.py` | Neighborhood enrichment and co-occurrence analysis/visualization between clusters via Squidpy |
 | `src/pipeline.py` | Integrated pipeline (`run_pipeline`) that runs preprocessing → dimensionality reduction → clustering → (optionally) spatial analysis → output, based on `config/config.yaml` |
-| `config/__init__.py` | Utilities for loading `config/config.yaml` and resolving paths/parameters (`load_config` / `get_paths` / `get_qc_config`) |
+| `config/__init__.py` | Utilities for loading `config/config.yaml` and resolving paths/parameters (`load_config` / `get_paths`) |
 
-### Docker (R + Python + Jupyter)
+### Docker (Python + Jupyter)
 
-This repository includes a `Dockerfile` for a Jupyter environment with both R and Python available, as an alternative to running locally with `uv`.
+This repository includes a `Dockerfile` that reproduces the analysis environment, as an alternative to running locally with `uv`. The analysis is pure Python, so the image is based on `python:3.11-slim`.
 
 Python dependencies are not hand-listed in the Dockerfile; they are installed from `pyproject.toml` / `uv.lock` via `uv sync --frozen`. This means adding or changing a dependency in `pyproject.toml` is reflected in the image without editing the Dockerfile. `jupyterlab` is not needed for the analysis itself, so it is declared as the `notebook` optional dependency group in `pyproject.toml` and installed in the Dockerfile via `--extra notebook`.
 
@@ -244,13 +244,13 @@ Python dependencies are not hand-listed in the Dockerfile; they are installed fr
 
 ```bash
 # run from the project root
-docker build -t spatial-rpy .
+docker build -t spatial-transcriptomics .
 ```
 
 #### Run (launch notebook)
 
 ```bash
-docker run --rm -p 8888:8888 -v "$PWD":/work spatial-rpy
+docker run --rm -p 8888:8888 -v "$PWD":/work spatial-transcriptomics
 ```
 
 Open the **URL with the token** shown in the startup log in a browser.
