@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: astral-sh/setup-uv@v10   # ランナーに uv を入れる（無いと uv add / uv lock が実行できない）
+      - uses: astral-sh/setup-uv@v10.1.0   # ランナーに uv を入れる（無いと uv add / uv lock が実行できない）
         with:
           enable-cache: true
 
