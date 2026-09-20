@@ -100,6 +100,8 @@ uv run jupyter lab
 
 このリポジトリには、R と Python の両方が使える Jupyter 環境用の `Dockerfile` が含まれる。`uv` によるローカル実行の代替手段である。
 
+Python の依存関係は、Dockerfile に手書きのパッケージ一覧を持たず、`pyproject.toml` / `uv.lock` から `uv sync --frozen` で入れる。そのため `pyproject.toml` に依存を追加・変更した際、Dockerfile を編集しなくてもイメージに反映される。`jupyterlab` は解析本体には不要なため `pyproject.toml` の `notebook` optional dependency として宣言し、Dockerfile 側で `--extra notebook` を付けて入れている。
+
 #### ビルド
 
 ```bash
@@ -114,6 +116,8 @@ docker run --rm -p 8888:8888 -v "$PWD":/work spatial-rpy
 ```
 
 起動ログに表示される **token 付き URL** をブラウザで開く。
+
+`docker run` は `-v "$PWD":/work` でカレントディレクトリを `/work` に上書きマウントするため、イメージに `COPY` されたソースはローカルの変更で置き換わる（依存関係はイメージ内の venv を使い続ける）。
 
 ### 解析環境（EC2）
 
@@ -234,6 +238,8 @@ Parameters (QC thresholds, clustering resolution, etc.) are managed via `config/
 
 This repository includes a `Dockerfile` for a Jupyter environment with both R and Python available, as an alternative to running locally with `uv`.
 
+Python dependencies are not hand-listed in the Dockerfile; they are installed from `pyproject.toml` / `uv.lock` via `uv sync --frozen`. This means adding or changing a dependency in `pyproject.toml` is reflected in the image without editing the Dockerfile. `jupyterlab` is not needed for the analysis itself, so it is declared as the `notebook` optional dependency group in `pyproject.toml` and installed in the Dockerfile via `--extra notebook`.
+
 #### Build
 
 ```bash
@@ -248,6 +254,8 @@ docker run --rm -p 8888:8888 -v "$PWD":/work spatial-rpy
 ```
 
 Open the **URL with the token** shown in the startup log in a browser.
+
+`docker run` mounts the current directory over `/work` via `-v "$PWD":/work`, so the source copied into the image is overridden by the local checkout (dependencies still come from the venv baked into the image).
 
 ### Analysis Environment (EC2)
 
