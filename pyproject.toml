@@ -18,3 +18,9 @@ dependencies = [
     "squidpy>=1.8.2",
     "umap-learn>=0.5.11",
 ]
+
+[project.optional-dependencies]
+# 解析本体には不要。Docker イメージの Jupyter 環境でのみ使う（Dockerfile 参照）。
+notebook = [
+    "jupyterlab>=4.0",
+]
