@@ -9,7 +9,8 @@ on:
 jobs:
   work:
     # `claude` ラベルが付いたときだけ動く（他のラベルでは何もしない）
-    if: github.event.label.name == 'claude'
+    # 公開リポジトリでも外部からは起動できないよう、ラベルを付けた人が所有者のときだけ動く
+    if: github.event.label.name == 'claude' && github.event.sender.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 30        # 暴走時の保険。無料枠を守る
     permissions:

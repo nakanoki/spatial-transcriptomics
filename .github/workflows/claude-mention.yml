@@ -10,7 +10,8 @@ on:
 
 jobs:
   respond:
-    if: contains(github.event.comment.body, '@claude')
+    # 公開リポジトリでは誰でもコメントできるため、コメント主が所有者のときだけ動く
+    if: contains(github.event.comment.body, '@claude') && github.event.comment.user.login == github.repository_owner
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
