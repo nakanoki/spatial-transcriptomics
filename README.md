@@ -38,7 +38,7 @@
 ### 現状と今後
 
 - 実装済み: QC → 正規化・HVG → 次元削減・クラスタリング → 空間自己相関 → マーカー遺伝子による解釈
-- 未着手: クラスタ間の近傍出現頻度・共起解析（`src/interaction.py` は実装済み、結果は未出力）、入力データを S3 に置いて CI 上で全解析を回す（[#6](https://github.com/nakanoki/spatial-transcriptomics/issues/6)）、テスト
+- 未着手: クラスタ間の近傍出現頻度・共起解析（`src/interaction.py` は実装済み、結果は未出力）、テスト
 
 ### ディレクトリ構成
 
@@ -190,7 +190,7 @@ The pipeline runs `scripts/run_qc.py` → `run_preprocess.py` → `run_clusterin
 ### Status and Next Steps
 
 - Implemented: QC → normalization/HVG → dimensionality reduction/clustering → spatial autocorrelation → marker-based interpretation
-- Not yet: neighborhood enrichment / co-occurrence between clusters (`src/interaction.py` exists; no outputs yet), running the full analysis in CI with input data on S3 ([#6](https://github.com/nakanoki/spatial-transcriptomics/issues/6)), tests
+- Not yet: neighborhood enrichment / co-occurrence between clusters (`src/interaction.py` exists; no outputs yet), tests
 
 ### Directory Structure
 
