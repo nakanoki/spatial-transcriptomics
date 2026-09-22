@@ -1,0 +1,49 @@
+# push / PR のたびに、まっさらな環境で「環境が再現できるか」を確認する。
+# 実データ（data/）は CI 上に無いので、解析そのものは走らせない。
+# 確認するのは次の 3 点:
+#   1. uv.lock が pyproject.toml と整合しているか
+#   2. lock どおりに依存が入り、src/ の各モジュールが import できるか
+#   3. Docker イメージがビルドできるか
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  env-check:
+    name: uv sync + import check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v10.1.0
+        with:
+          enable-cache: true
+          python-version: "3.11"   # Dockerfile と同じ系列に揃える
+
+      # lock が pyproject.toml と食い違っていれば失敗する（uv add 後に lock を忘れた等）
+      - run: uv lock --check
+
+      # lock どおりに入るか。--frozen で lock の更新はしない
+      - run: uv sync --frozen
+
+      # 依存が壊れていないかを import で確認する（データ不要）
+      - run: |
+          uv run python -c "
+          import src.preprocessing, src.clustering, src.deg, src.visualization, src.interaction, src.pipeline
+          import config
+          print('all modules imported')
+          "
+
+  docker-build:
+    name: docker build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      # ビルドできることだけ確認する（push はしない）
+      - run: docker build -t spatial-transcriptomics .
