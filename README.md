@@ -1,5 +1,7 @@
 # spatial-transcriptomics
 
+[![CI](https://github.com/nakanoki/spatial-transcriptomics/actions/workflows/ci.yml/badge.svg)](https://github.com/nakanoki/spatial-transcriptomics/actions/workflows/ci.yml)
+
 [日本語](#日本語) | [English](#english)
 
 ---
@@ -104,6 +106,10 @@ uv run jupyter lab
 ```
 
 パラメータ（QC 閾値・クラスタリング解像度など）は `config/config.yaml` と `src/` 各モジュールの dataclass（`PreprocessParams` / `DimReduceParams` / `ClusteringParams` 等）で管理する。コードへの直書きはしない。
+
+#### CI
+
+push / PR のたびに GitHub Actions（[ci.yml](.github/workflows/ci.yml)）で、まっさらな環境から `uv lock --check` → `uv sync --frozen` → `src/` 各モジュールの import 確認 → Docker イメージのビルドを実行する。実データは CI 上に無いため解析は走らせず、「README の手順で環境が再現できること」だけを毎回確認している。
 
 #### 依存関係についての方針
 
@@ -256,6 +262,10 @@ uv run jupyter lab
 ```
 
 Parameters (QC thresholds, clustering resolution, etc.) are managed via `config/config.yaml` and dataclasses in each `src/` module (`PreprocessParams` / `DimReduceParams` / `ClusteringParams`, etc.), not hardcoded.
+
+#### CI
+
+On every push / PR, GitHub Actions ([ci.yml](.github/workflows/ci.yml)) starts from a clean environment and runs `uv lock --check` → `uv sync --frozen` → an import check of every `src/` module → a Docker image build. The real data is not available in CI, so the analysis itself is not executed; the CI only verifies that the environment described in this README can be reproduced.
 
 #### Dependency Policy
 
