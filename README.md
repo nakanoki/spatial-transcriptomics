@@ -10,7 +10,7 @@
 
 10x Genomics Visium（ヒト乳がん組織・Fresh Frozen）の空間トランスクリプトミクス解析プロジェクトである。
 
-- **何を**: 乳がん組織切片の Visium 空間トランスクリプトームデータに対して、QC・正規化・次元削減・クラスタリング・マーカー遺伝子（DEG）探索・空間的な細胞間相互作用解析までを一貫して行うパイプラインを実装している。
+- **何を**: 乳がん組織切片の Visium 空間トランスクリプトームデータに対して、QC・正規化・次元削減・クラスタリング・空間自己相関・マーカー遺伝子（DEG）探索までを一貫して行うパイプラインを実装している。空間的な細胞間相互作用解析まで広げることを目指す（実装済みの範囲は[現状と今後](#現状と今後)を参照）。
 - **どのデータで**: 10x Genomics が公開している Human Breast Cancer（Visium, Fresh Frozen, Whole Transcriptome）データセットを使用する（詳細は [データソース](#データソース) を参照）。
 - **何を明らかにするか**: 組織内の遺伝子発現に基づくクラスター（腫瘍領域・間質領域など）を同定し、それらの空間的な分布パターンやクラスター間の近接・相互作用を可視化・定量することを目指す。
 - 実装は `scanpy` / `squidpy` をベースに、`config/config.yaml` による設定管理と `src/` 以下の再利用可能なモジュールで構成する（ロジックを `.ipynb` に直書きしない方針、詳細は [CLAUDE.md](./CLAUDE.md) を参照）。
@@ -166,7 +166,7 @@ docker run --rm -p 8888:8888 -v "$PWD":/work spatial-transcriptomics
 
 A spatial transcriptomics analysis project using 10x Genomics Visium data (human breast cancer tissue, fresh frozen).
 
-- **What**: Implements an end-to-end pipeline over Visium spatial transcriptome data from breast cancer tissue sections — QC, normalization, dimensionality reduction, clustering, marker gene (DEG) discovery, and spatial cell-cell interaction analysis.
+- **What**: Implements an end-to-end pipeline over Visium spatial transcriptome data from breast cancer tissue sections — QC, normalization, dimensionality reduction, clustering, spatial autocorrelation, and marker gene (DEG) discovery. Extending it to spatial cell-cell interaction analysis is a goal (see [Status and Next Steps](#status-and-next-steps) for what is implemented).
 - **What data**: Uses the publicly available Human Breast Cancer (Visium, Fresh Frozen, Whole Transcriptome) dataset from 10x Genomics (see [Data Source](#data-source) for details).
 - **Goal**: Identify expression-based clusters within the tissue (e.g. tumor regions, stromal regions), and visualize/quantify their spatial distribution patterns and inter-cluster proximity/interactions.
 - Built on `scanpy` / `squidpy`, with configuration managed via `config/config.yaml` and reusable modules under `src/` (logic is not written directly in `.ipynb` files — see [CLAUDE.md](./CLAUDE.md) for details).
